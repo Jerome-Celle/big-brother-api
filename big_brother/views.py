@@ -18,9 +18,11 @@ from imailing.Mailing import IMailing
 
 from django.conf import settings
 
+import tests
+from big_brother import tests_execution
 from .models import (
-    TemporaryToken, ActionToken
-)
+    TemporaryToken, ActionToken,
+    Application, Test, Execution)
 
 from . import serializers, permissions
 
@@ -127,7 +129,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 )
 
                 # Send email with a SETTINGS_IMAILING
-                email = IMailing.\
+                email = IMailing. \
                     create_instance(MAIL_SERVICE["SERVICE"],
                                     MAIL_SERVICE["API_KEY"])
                 response_send_mail = email.send_templated_email(
@@ -136,7 +138,7 @@ class UserViewSet(viewsets.ModelViewSet):
                     list_to=[request.data["email"]],
                     context={
                         "activation_url": activation_url,
-                        },
+                    },
                 )
 
                 if response_send_mail["code"] == "failure":
@@ -390,3 +392,86 @@ class TemporaryTokenDestroy(viewsets.GenericViewSet, mixins.DestroyModelMixin):
             user=self.request.user,
         )
         return tokens
+
+
+class ApplicationViewSet(viewsets.ModelViewSet):
+    """
+    retrieve:
+    Return the given Service.
+    list:
+    Return a list of all the existing Services.
+    create:
+    Create a new Service instance.
+    """
+    authentication_classes = []
+    permission_classes = []
+    serializer_class = serializers.ApplicationSerializer
+    queryset = Application.objects.all()
+
+    http_method_names = [u'get', u'head', u'options', u'trace']
+
+
+class TestViewSet(viewsets.ModelViewSet):
+    """
+    retrieve:
+    Return the given Service.
+    list:
+    Return a list of all the existing Services.
+    create:
+    Create a new Service instance.
+    """
+    authentication_classes = []
+    permission_classes = []
+    http_method_names = [u'get', u'head', u'options', u'trace']
+    serializer_class = serializers.TestSerializer
+    queryset = Test.objects.all()
+    filter_fields = {
+        'application': ['exact'],
+    }
+
+
+class ExecutionViewSet(viewsets.ModelViewSet):
+    """
+    retrieve:
+    Return the given Service.
+    list:
+    Return a list of all the existing Services.
+    create:
+    Create a new Service instance.
+    """
+    authentication_classes = []
+    permission_classes = []
+    serializer_class = serializers.ExecutionSerializer
+    queryset = Execution.objects.all().order_by('-datetime')
+
+    http_method_names = [u'get', u'head', u'options', u'trace']
+
+    filter_fields = {
+        'test': ['exact'],
+    }
+
+
+class TestTypeViewSet(viewsets.ModelViewSet):
+    """
+    retrieve:
+    Return the given Service.
+    list:
+    Return a list of all the existing Services.
+    create:
+    Create a new Service instance.
+    """
+    authentication_classes = []
+    permission_classes = []
+    serializer_class = serializers.TestTypeSerializer
+    queryset = Execution.objects.all()
+
+    http_method_names = [u'get', u'head', u'options', u'trace']
+
+
+class RunTestView(APIView):
+    authentication_classes = []
+    permission_classes = []
+    http_method_names = [u'get', u'head', u'options', u'trace']
+
+    def get(self, request, pk=None):
+        return Response(tests_execution.run(pk))

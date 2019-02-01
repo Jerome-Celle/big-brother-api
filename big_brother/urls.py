@@ -28,6 +28,7 @@ from . import views
 
 class OptionalSlashDefaultRouter(DefaultRouter):
     """ Subclass of DefaultRouter to make the trailing slash optional """
+
     def __init__(self, *args, **kwargs):
         super(DefaultRouter, self).__init__(*args, **kwargs)
         self.trailing_slash = '/?'
@@ -41,12 +42,15 @@ router = OptionalSlashDefaultRouter()
 
 # Main application routes
 router.register('users', views.UserViewSet)
-router.register('tasks', views.TaskViewSet)
 router.register(
     'authentication',
     views.TemporaryTokenDestroy,
     base_name="authentication",
 )
+router.register('applications', views.ApplicationViewSet)
+router.register('tests', views.TestViewSet)
+router.register('executions', views.ExecutionViewSet)
+router.register('test-type', views.TestTypeViewSet)
 
 urlpatterns = [
     path(
@@ -72,7 +76,7 @@ urlpatterns = [
         'reset_password',
         views.ResetPassword.as_view(),
         name='reset_password'
-        ),
+    ),
     path(
         'change_password',
         views.ChangePassword.as_view(),
@@ -90,5 +94,10 @@ urlpatterns = [
         )
     ),
     path('api-auth/', include('rest_framework.urls')),
+    path(
+        'run_test/<int:pk>',
+        views.RunTestView.as_view(),
+        name='run_test'
+    ),
     path('', include(router.urls)),  # includes router generated URL
 ]

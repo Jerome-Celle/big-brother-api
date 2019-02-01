@@ -73,7 +73,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'big_brother.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
@@ -110,7 +109,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
@@ -123,7 +121,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
@@ -157,11 +154,9 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100
 }
 
-
 # CORS Header Django Rest Framework
 
 CORS_ORIGIN_ALLOW_ALL = True
-
 
 # Temporary Token
 

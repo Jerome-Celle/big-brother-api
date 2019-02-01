@@ -13,8 +13,8 @@ from rest_framework.compat import authenticate
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 
 from .models import (
-    ActionToken
-)
+    ActionToken,
+    Application, Execution, Test, TestType)
 
 User = get_user_model()
 
@@ -269,7 +269,6 @@ class CustomAuthTokenSerializer(AuthTokenSerializer):
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-
     email = serializers.EmailField(
         label=_('Email address'),
         max_length=254,
@@ -289,7 +288,6 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
-
     token = serializers.CharField(
         required=True,
         help_text=_("Action token authorizing password change."),
@@ -301,8 +299,39 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class UsersActivationSerializer(serializers.Serializer):
-
     activation_token = serializers.CharField(
         required=True,
         help_text=_("Action token authorizing user activation."),
     )
+
+
+class ApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        fields = '__all__'
+
+
+class TestTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TestType
+        fields = '__all__'
+
+
+class ExecutionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Execution
+        fields = '__all__'
+
+
+class TestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Test
+        fields = '__all__'
+
+    lastExecution = serializers.SerializerMethodField()
+
+    def get_lastExecution(self, test):
+        list_execution = Execution.objects.filter(test=test.id).order_by(
+            '-datetime')
+        if len(list_execution) > 0:
+            return ExecutionSerializer(list_execution[0]).data

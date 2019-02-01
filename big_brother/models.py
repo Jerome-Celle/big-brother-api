@@ -1,5 +1,6 @@
 import binascii
 import os
+import uuid
 
 from django.conf import settings
 from django.db import models
@@ -203,3 +204,96 @@ class Address(models.Model):
 
     class Meta:
         abstract = True
+
+
+class Application(models.Model):
+    name = models.CharField(
+        max_length=40,
+        blank=False,
+        null=False,
+        unique=True,
+        verbose_name=_('Name')
+    )
+
+    UUID = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True
+    )
+
+    description = models.CharField(
+        max_length=500,
+        blank=False,
+        null=False,
+        verbose_name=_('Description')
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class Execution(models.Model):
+    test = models.ForeignKey('Test', on_delete=models.CASCADE)
+
+    success = models.BooleanField(
+        blank=False,
+        null=False,
+        verbose_name=_('Success')
+    )
+
+    datetime = models.DateTimeField(
+        verbose_name=_("Execution date"),
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return self.datetime.strftime("%m/%d/%Y, %H:%M:%S")
+
+
+class TestType(models.Model):
+    name = models.CharField(
+        max_length=40,
+        blank=False,
+        null=False,
+        unique=True,
+        verbose_name=_('Name')
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class Test(models.Model):
+    name = models.CharField(
+        max_length=40,
+        blank=False,
+        null=False,
+        unique=True,
+        verbose_name=_('Name')
+    )
+
+    description = models.CharField(
+        max_length=500,
+        blank=False,
+        null=False,
+        verbose_name=_('Description')
+    )
+
+    url = models.URLField(
+        max_length=400,
+        verbose_name=_('URL')
+    )
+
+    script = models.TextField(
+        max_length=4000,
+        blank=False,
+        null=False,
+        verbose_name=_('Script')
+    )
+
+    test_type = models.ForeignKey('TestType', on_delete=models.PROTECT)
+
+    application = models.ForeignKey('Application', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
